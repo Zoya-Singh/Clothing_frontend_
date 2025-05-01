@@ -7,12 +7,12 @@ const ShopContextProvider = (props) => {
     const [all_product, setAllProduct] = useState([]);
 
     useEffect(() => {
-        fetch('https://clothing-store-6uv5.onrender.com/allproducts')
+        fetch('https://clothing-frontend.vercel.app/allproducts')
             .then((response) => response.json())
             .then((data) => setAllProduct(data));
 
         if(localStorage.getItem('auth-token')) {
-            fetch('https://clothing-store-6uv5.onrender.com/getcart', {
+            fetch('https://clothing-frontend.vercel.app/getcart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ const ShopContextProvider = (props) => {
         }));
         
         if(localStorage.getItem('auth-token')) {
-            await fetch('https://clothing-store-6uv5.onrender.com/addtocart', {
+            await fetch('https://clothing-frontend.vercel.app/addtocart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ const ShopContextProvider = (props) => {
         }));
         
         if(localStorage.getItem('auth-token')) {
-            await fetch('https://clothing-store-6uv5.onrender.com/removefromcart', {
+            await fetch('https://clothing-frontend.vercel.app/removefromcart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
