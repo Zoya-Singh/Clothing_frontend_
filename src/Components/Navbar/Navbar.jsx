@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Navbar.css';
 import logo from '../Assets/logo.png';
 import cart_icon from '../Assets/cart_icon.png';
@@ -7,7 +7,18 @@ import { ShopContext } from '../../Context/ShopContext';
 
 const Navbar = () => {
   const [menu, setMenu] = useState("shop");
-  const { getTotalCartItems } = useContext(ShopContext); // updated function name
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { getTotalCartItems } = useContext(ShopContext);
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem('auth-token'));
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth-token');
+    setIsLoggedIn(false);
+    window.location.replace("/");
+  };
 
   return (
     <div className='navbar'>
@@ -36,7 +47,11 @@ const Navbar = () => {
       </ul>
 
       <div className="nav-login-cart">
-        <Link to='/login'><button>Login</button></Link>
+        {isLoggedIn ? (
+          <button onClick={handleLogout}>Logout</button>
+        ) : (
+          <Link to='/login'><button>Login</button></Link>
+        )}
         <Link to='/cart'>
           <img src={cart_icon} alt="cart" />
         </Link>

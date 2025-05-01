@@ -1,42 +1,79 @@
-import React, { createContext, useState } from "react";
-import all_product from "../Components/Assets/all_product";
+import React, { createContext, useEffect, useState } from "react";
 
 export const ShopContext = createContext(null);
 
-const getDefaultCart = () => {
-    let cart = {};
-    for (let index = 0; index < all_product.length; index++) {
-        cart[all_product[index].id] = 0;
-    }
-    return cart;
-};
-
 const ShopContextProvider = (props) => {
-    const [cartItems, setCartItems] = useState(getDefaultCart());
+    const [cartItems, setCartItems] = useState({});
+    const [all_product, setAllProduct] = useState([]);
 
-    const addToCart = (itemId) => {
+    useEffect(() => {
+        fetch('https://clothing-store-6uv5.onrender.com/allproducts')
+            .then((response) => response.json())
+            .then((data) => setAllProduct(data));
+
+        if(localStorage.getItem('auth-token')) {
+            fetch('https://clothing-store-6uv5.onrender.com/getcart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': localStorage.getItem('auth-token')
+                },
+                body: JSON.stringify({auth_token: localStorage.getItem('auth-token')})
+            })
+            .then((response) => response.json())
+            .then((data) => setCartItems(data));
+        }
+    }, [])
+
+    const addToCart = async (itemId) => {
         setCartItems((prev) => ({
             ...prev,
-            [itemId]: prev[itemId] + 1,
+            [itemId]: (prev[itemId] || 0) + 1
         }));
+        
+        if(localStorage.getItem('auth-token')) {
+            await fetch('https://clothing-store-6uv5.onrender.com/addtocart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': localStorage.getItem('auth-token')
+                },
+                body: JSON.stringify({
+                    itemId: itemId
+                })
+            })
+        }
     };
 
-    const removeFromCart = (itemId) => {
+    const removeFromCart = async (itemId) => {
         setCartItems((prev) => ({
             ...prev,
-            [itemId]: prev[itemId] - 1,
+            [itemId]: Math.max((prev[itemId] || 0) - 1, 0)
         }));
+        
+        if(localStorage.getItem('auth-token')) {
+            await fetch('https://clothing-store-6uv5.onrender.com/removefromcart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': localStorage.getItem('auth-token')
+                },
+                body: JSON.stringify({
+                    itemId: itemId
+                })
+            })
+        }
     };
 
     const getTotalCartAmount = () => {
         let totalAmount = 0;
-        for (const item in cartItems) {
-            if (cartItems[item] > 0) {
+        for (const itemId in cartItems) {
+            if (cartItems[itemId] > 0) {
                 const itemInfo = all_product.find(
-                    (product) => product.id === Number(item)
+                    (product) => product.id === Number(itemId)
                 );
                 if (itemInfo) {
-                    totalAmount += itemInfo.new_price * cartItems[item];
+                    totalAmount += itemInfo.new_price * cartItems[itemId];
                 }
             }
         }
@@ -46,18 +83,20 @@ const ShopContextProvider = (props) => {
     const getTotalCartItems = () => {
         let totalItems = 0;
         for (const item in cartItems) {
-            totalItems += cartItems[item];
+            if(cartItems[item] > 0) {
+                totalItems += cartItems[item];
+            }
         }
         return totalItems;
     };
 
     const contextValue = {
+        all_product,
         cartItems,
         addToCart,
         removeFromCart,
         getTotalCartAmount,
         getTotalCartItems,
-        all_product,
     };
 
     return (
