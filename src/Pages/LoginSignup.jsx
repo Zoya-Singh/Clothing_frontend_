@@ -15,7 +15,7 @@ const LoginSignup = () => {
 
   const login = async () => {
     let responseData;
-    await fetch('https://clothing-frontend.vercel.app/login', {
+    await fetch('https://clothing-store-6uv5.onrender.com/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ const LoginSignup = () => {
 
   const signup = async () => {
     let responseData;
-    await fetch('https://clothing-frontend.vercel.app/signup', {
+    await fetch('https://clothing-store-6uv5.onrender.com/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
